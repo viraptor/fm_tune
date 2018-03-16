@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #define AVG_SIZE 500000
+#define FM_WIDTH 76e3
 
 enum Direction {
     INITIAL = 0,
@@ -55,6 +56,15 @@ char *enumerate() {
     return to_return;
 }
 
+firfilt_crcf create_filter(const float sample_rate) {
+    const float cutoff_freq = FM_WIDTH * 4.0 / sample_rate;
+    const float As = 70;
+    const unsigned int h_len = estimate_req_filter_len(0.1,As);
+    firfilt_crcf q = firfilt_crcf_create_kaiser(h_len, cutoff_freq, As, 0.0f);
+    firfilt_crcf_set_scale(q, 2.0f*cutoff_freq);
+    return q;
+}
+
 float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rate) {
     const float deviation = 80e3;
     const float kf = deviation / sample_rate;
@@ -64,6 +74,8 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
     enum Direction shift_direction = INITIAL;
 
     freqdem mod = freqdem_create(kf);
+
+    firfilt_crcf filter = create_filter(sample_rate);
 
     float t=0;
     complex float buff[1024];
@@ -83,6 +95,8 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
         for (int i=0; i<ret; i++) {
             buff[i] *= cexpf(2.0J*M_PI*t*shift);
             t += 1./sample_rate;
+            firfilt_crcf_push(filter, buff[i]);
+            firfilt_crcf_execute(filter, &buff[i]);
             
             freqdem_demodulate(mod, buff[i], &wav);
 
@@ -119,7 +133,7 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
 
 int main(int argc, char **argv) {
     const float sample_rate = 1.8e6;
-    const float freq = argv[1] ? atof(argv[1]) : 103.3e6;
+    const float freq = argv[1] ? atof(argv[1])*1e6 : 103.3e6;
 
     char *device_desc = enumerate();
     if (device_desc == NULL) {
