@@ -6,7 +6,7 @@
 #include <math.h>
 #include <unistd.h>
 
-#define AVG_SIZE 2000
+#define AVG_SIZE 10000
 #define FM_WIDTH 76e3
 
 enum Direction {
