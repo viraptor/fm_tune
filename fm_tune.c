@@ -228,7 +228,7 @@ void deinit_sdr(SoapySDRDevice *sdr, SoapySDRStream* rxStream) {
 
 int main(int argc, char **argv) {
     const float sample_rate = 1.8e6;
-    const float freq = argv[1] ? atof(argv[1])*1e6 : 103.3e6;
+    const float freq = argc>1 ? atof(argv[1])*1e6 : 103.3e6;
 
     char *device_desc = enumerate();
     SoapySDRDevice *sdr = NULL;
