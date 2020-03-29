@@ -3,12 +3,12 @@ SOAPY_CFLAGS?=$(shell (pkg-config --exists SoapySDR && pkg-config --cflags Soapy
 LDFLAGS+=-lliquid -lm $(SOAPY_LDFLAGS)
 CFLAGS+=-std=c99 -O3 -Wall -Wextra -march=native $(SOAPY_CFLAGS)
 
-TARGET_EXEC = fm_tune
-
-all: $(TARGET)
+TARGET = fm_tune
 
 $(TARGET): $(TARGET).c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(TARGET).c
+	$(CC) $(TARGET).c $(CFLAGS) $(LDFLAGS) -o $(TARGET)
+
+all: $(TARGET)
 
 clean:
 	$(RM) $(TARGET)
