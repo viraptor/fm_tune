@@ -6,6 +6,10 @@
 #include <math.h>
 #include <unistd.h>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 #define AVG_SIZE 10000
 #define FM_WIDTH 76e3
 
@@ -235,7 +239,7 @@ int main(int argc, char **argv) {
     SoapySDRStream *rxStream = NULL;
 
     if (device_desc == NULL) {
-        printf("No devices found, using stdin\n");
+        puts("No devices found, using stdin");
     } else {
         init_sdr(device_desc, sample_rate, freq, &sdr, &rxStream);
     }
