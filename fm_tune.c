@@ -1,6 +1,7 @@
 #include <liquid/liquid.h>
 #include <SoapySDR/Device.h>
 #include <SoapySDR/Formats.h>
+#include <SoapySDR/Version.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -213,7 +214,11 @@ void init_sdr(char *device_desc, float sample_rate, float freq, SoapySDRDevice *
         exit(EXIT_FAILURE);
     }
 
+#if defined(SOAPY_SDR_API_VERSION) && SOAPY_SDR_API_VERSION >= 0x00080000
+    if ((*rxStream = SoapySDRDevice_setupStream(*sdr, SOAPY_SDR_RX, SOAPY_SDR_CF32, NULL, 0, NULL)) == NULL) {
+#else
     if (SoapySDRDevice_setupStream(*sdr, rxStream, SOAPY_SDR_RX, SOAPY_SDR_CF32, NULL, 0, NULL) != 0) {
+#endif
         printf("setupStream fail: %s\n", SoapySDRDevice_lastError());
         exit(EXIT_FAILURE);
     }
