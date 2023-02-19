@@ -125,7 +125,7 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
     nco_crcf shifter = nco_crcf_create(LIQUID_VCO);
     nco_crcf_set_frequency(shifter, M_PI*2.0*shift/sample_rate);
 
-    complex float buff[1024];
+    liquid_float_complex buff[1024];
     float wav;
 
     void *buffs[] = {buff, NULL};
@@ -141,7 +141,7 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
                 exit(EXIT_FAILURE);
             }
         } else {
-            ret = read(STDIN_FILENO, buff, 1024 * sizeof (complex float));
+            ret = read(STDIN_FILENO, buff, 1024 * sizeof (liquid_float_complex));
             if (ret < 0) {
                 perror("read error");
                 exit(EXIT_FAILURE);
@@ -150,7 +150,7 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
                 printf("EOF");
                 exit(EXIT_FAILURE);
             }
-            ret /= sizeof (complex float);
+            ret /= sizeof (liquid_float_complex);
         }
 
         for (int i=0; i<ret; i++) {
@@ -183,7 +183,7 @@ float run(SoapySDRDevice *sdr, SoapySDRStream *rx_stream, const float sample_rat
                 if ((shift_direction == UP && current_avg < 0) ||
                     (shift_direction == DOWN && current_avg > 0)) {
                     shift_size /= 10;
-                    shift_direction = -shift_direction;
+                    shift_direction = (enum Direction) (-1 * (int)shift_direction);
                 }
 
                 if (shift_size <= 1) {
